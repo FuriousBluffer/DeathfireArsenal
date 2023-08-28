@@ -1,0 +1,200 @@
+openapi: 3.0.3
+info:
+  title: DeathfireArsenal API
+  version: 1.0.0
+paths:
+  /api/createPlayer:
+    post:
+      summary: Create a new player
+      description: Creates a new player by providing a unique Player ID and a region code of length 3 in the request body. The Player ID must be a string representing the unique identifier for the player, and the region code should be a string of length 3 for identifying the player's region.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id:
+                  type: string
+                  example: "Furious"
+                region:
+                  type: string
+                  example: "BLR"
+      responses:
+        '201':
+          description: Player created successfully
+        '400':
+          description: Invalid or missing parameters OR the Player ID is taken.
+        '500':
+          description: The developer had one job!
+  /api/createRoom:
+    post:
+      summary: Create a new room
+      description: Creates a new room for a player to join by providing the Player ID and the desired game mode in the request body. The Player ID must be a string representing the unique identifier for the player, and the game mode should be one of the following strings - **team deathmatch**, **battle royale**, **gunsmith**, **1 v 1**, **mayhem**, or **rapid fire**. The response consists of a room id of length 7 that can be shared with other players to join the same room. Keep note that different rooms have different capacities based on their mode.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id:
+                  type: string
+                  example: "Furious"
+                mode:
+                  type: string
+                  enum: [ Team Deathmatch, 1 V 1, Mayhem, Gunsmith, Battle Royale ]
+                  example: Team Deathmatch
+      responses:
+        '201':
+          description: Room created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  room_id:
+                    type: string
+                    example: "dfjlnas"
+        '400':
+          description: Invalid or missing parameters OR Player already in some room
+        '500':
+          description: The developer had one job!
+  /api/getRooms:
+    get:
+      summary: Get rooms by mode
+      description: Retrieves a list of available rooms for a specific game mode. The game mode is specified as a query parameter in the URL.
+      parameters:
+        - name: mode
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [ Team Deathmatch, 1 V 1, Mayhem, Gunsmith, Battle Royale ]
+            example: Team Deathmatch
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: ["erfghyk", "qasfgtr"]
+        '400':
+          description: Invalid or missing parameters
+        '500':
+          description: The developer had one job!
+  /api/joinRoom:
+    post:
+      summary: Join a room
+      description: Allows a player to join a specific room by providing their Player ID and the Room ID in the request body. The Player ID must be a string representing the unique identifier for the player, and the Room ID should be a string of length 7 representing the unique identifier for the room. Keep note that different rooms have different capacities based on their mode, so it is possible to get a response asking to join another room as the current room is full. Capacities are mentioned in the program as well in constants. TeamDeathmatch - 10, BattleRoyale - 20, GunSmith - 8, OneVsOne - 2, Mayhem - 5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id:
+                  type: string
+                  example: "player123"
+                room_id:
+                  type: string
+                  example: "room456"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid or missing parameters
+        '500':
+          description: The developer had one job!
+  /api/leaveRoom:
+    post:
+      summary: Leave a room
+      description: Allows a player to leave the room they are currently in. The Player ID is provided in the request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id:
+                  type: string
+                  example: "Furious"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid or missing parameters OR player not in any room
+        '500':
+          description: The developer had one job!
+  /api/getModeTrendsByRegion:
+    get:
+      summary: Get mode trends by region
+      description: Retrieves the top 3 most played game modes in a specific region. The region is specified as a query parameter in the URL.
+      parameters:
+        - name: region
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "ABC"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Team Deathmatch:
+                    type: integer
+                    example: 10
+                  Battle Royale:
+                    type: integer
+                    example: 5
+                  Gunsmith:
+                    type: integer
+                    example: 3
+        '400':
+          description: Invalid or missing parameters
+        '500':
+          description: The developer had one job!
+  /api/getModeTrendsByRegionV2:
+    get:
+      summary: Get mode trends by region for the logged in player's region
+      description: Retrieves the top 3 most played game modes for the region of a specific player. The Player ID is provided in the request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id:
+                  type: string
+                  example: "Furious"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Team Deathmatch:
+                    type: integer
+                    example: 5
+                  Battle Royale:
+                    type: integer
+                    example: 2
+                  Gunsmith:
+                    type: integer
+                    example: 1
+        '400':
+          description: Bad Request - Invalid or missing parameters
+        '500':
+          description: Internal Server Error - Something went wrong on the server

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package model;
+
+option go_package = "../models";
+
+
+message Player {
+  string id = 1;
+  string region = 2;
+  string room = 3;
+}
+
+message Room {
+  string id = 1;
+  repeated string playerIds = 2;
+  string mode = 3;
+}
